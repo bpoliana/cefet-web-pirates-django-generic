@@ -9,18 +9,25 @@ from .models import Tesouro
 
 
 class ListarTesouros(View):
-    def get(self,request):
-        lst_tesouros = Tesouro.objects.annotate(valor_total=ExpressionWrapper(F('quantidade')*F('preco'),\
+    model = models.Tesouro
+    template_name = 'lista_tesouros.html'
+
+    def get_context_data(self, **kwargs)
+        context = super().get_context_data(**kwargs)
+                context['total_geral'] = 0
+                for obj in context['object_list']:
+                    context['total_geral'] += obj.valor_total
+                return context
+
+    def get_queryset(self, **kwargs):
+        return models.objects.annotate(valor_total=ExpressionWrapper(F('quantidade')*F('preco'),\
                             output_field=DecimalField(max_digits=10,\
                                                     decimal_places=2,\
                                                      blank=True)\
                                                     )\
-                            )
-        valor_total = 0
-        for tesouro in lst_tesouros:
-            valor_total += tesouro.valor_total
-        return render(request,"lista_tesouros.html",{"lista_tesouros":lst_tesouros,
-                                                     "total_geral":valor_total})
+                              )
+
+
 class TesouroForm(ModelForm):
     class Meta:
         model = Tesouro
@@ -52,7 +59,7 @@ class RemoverTesouro(View):
         Tesouro.objects.get(id=id).delete()
         return HttpResponseRedirect(reverse('lista_tesouros') )
 
-class InserirTesouro(CreateView): 
+class InserirTesouro(CreateView):
     class Meta:
         model = Tesouro
         fields = fields = ['nome', 'quantidade', 'preco', 'img_tesouro']
