@@ -4,11 +4,11 @@ from django.http import HttpResponseRedirect
 from django.views import View
 from django.forms import ModelForm
 from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView
 from .models import Tesouro
 
-
-class ListarTesouros(View):
+class ListarTesouros(LoginRequiredMixin, View):
     model = models.Tesouro
     template_name = 'lista_tesouros.html'
 
@@ -36,7 +36,7 @@ class TesouroForm(ModelForm):
             "img_tesouro": "Imagem"
         }
 
-class SalvarTesouro(View):
+class SalvarTesouro(LoginRequiredMixin, View):
     def get_tesouro(self,id):
         if id:
             return Tesouro.objects.get(id=id)
@@ -54,14 +54,15 @@ class SalvarTesouro(View):
         else:
             return render(request,"salvar_tesouro.html",{"tesouroForm":form})
 
-class RemoverTesouro(View):
+class RemoverTesouro(LoginRequiredMixin, View):
     def get(self,request,id):
         Tesouro.objects.get(id=id).delete()
         return HttpResponseRedirect(reverse('lista_tesouros') )
 
-class InserirTesouro(CreateView):
+class InserirTesouro(LoginRequiredMixin, CreateView):
     class Meta:
         model = Tesouro
         fields = fields = ['nome', 'quantidade', 'preco', 'img_tesouro']
         template_name = 'salvar_tesouro.html'
         success_url = reverse_lazy('lista_tesouros')
+
