@@ -25,7 +25,14 @@
           <td>{{ tesouro.quantidade }}</td>
           <td>{{ tesouro.valor_total }}</td>
           <td><a href="{% url "editar" tesouro.id %}"><img src="{% static 'imgs/edit.png' %}" alt="Editar"></a></td>
-          <td><a href="{% url "excluir" tesouro.id %}"><img src="{% static 'imgs/delete.svg' %}" alt="Deletar"></a></td>
+          <td>
+            <form method="POST" action="{% url "excluir" tesouro.pk %}">
+              {% csrf_token %}
+              <button>
+                <img src="{% static 'imgs/delete.svg' %}" alt="Deletar">
+              </button>
+            </form>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
